@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATEM - Incident History</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background: radial-gradient(circle at center, #1b2e2b 0%, #0d1a18 100%);
+            color: #f1f5f9; min-height: 100vh; display: flex;
+            justify-content: center; align-items: flex-start;
+            font-family: 'Plus Jakarta Sans', sans-serif; padding: 2rem 1rem;
+        }
+        .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 1.2rem; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .brand-title { font-family: 'Cinzel', serif; font-size: 1.5rem; letter-spacing: 0.3rem; color: #fff; }
+        .back-btn {
+            background: rgba(167, 243, 208, 0.1); border: 1px solid rgba(167, 243, 208, 0.3);
+            color: #a7f3d0; padding: 0.4rem 1rem; font-size: 0.75rem; font-weight: 600;
+            border-radius: 50px; text-decoration: none; transition: all 0.3s ease;
+        }
+        .back-btn:hover { background: #a7f3d0; color: #0d1a18; }
+
+        .controls-card {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(167, 243, 208, 0.2);
+            border-radius: 16px; padding: 1rem; backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .filter-info { font-size: 0.75rem; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.05rem; }
+        .clear-btn {
+            background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4);
+            color: #fecdd3; padding: 0.3rem 0.8rem; font-size: 0.65rem; font-weight: 600;
+            border-radius: 50px; cursor: pointer; text-transform: uppercase;
+        }
+        .clear-btn:hover { background: #f43f5e; color: #fff; }
+
+        .history-list { display: flex; flex-direction: column; gap: 0.8rem; width: 100%; }
+        
+        .incident-card {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 1.2rem; backdrop-filter: blur(10px);
+            display: flex; flex-direction: column; gap: 0.6rem; transition: transform 0.2s ease;
+        }
+        .incident-card.critical { border-left: 4px solid #f43f5e; background: rgba(244, 63, 94, 0.05); }
+        .incident-card.typical { border-left: 4px solid #38bdf8; background: rgba(56, 189, 248, 0.05); }
+
+        .card-top { display: flex; justify-content: space-between; align-items: center; }
+        .card-id { font-size: 0.7rem; color: #94a3b8; letter-spacing: 0.05rem; font-weight: 600; }
+        
+        .severity-badge {
+            font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1rem;
+            padding: 0.25rem 0.6rem; border-radius: 50px; text-transform: uppercase;
+        }
+        .severity-badge.critical { background: rgba(244, 63, 94, 0.2); color: #fecdd3; border: 1px solid rgba(244, 63, 94, 0.4); }
+        .severity-badge.typical { background: rgba(56, 189, 248, 0.2); color: #bae6fd; border: 1px solid rgba(56, 189, 248, 0.4); }
+
+        .patient-details { font-size: 0.95rem; font-weight: 600; color: #f8fafc; }
+        .location-details { font-size: 0.8rem; color: #cbd5e1; }
+        .timestamp { font-size: 0.7rem; color: #64748b; text-align: right; margin-top: 0.2rem; }
+
+        .empty-state {
+            text-align: center; color: #94a3b8; padding: 3rem 1rem;
+            background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 16px; font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="brand-title">ATEM</h1>
+            <a href="1page.html" class="back-btn">← Home</a>
+        </div>
+
+        <div class="controls-card">
+            <span class="filter-info">Sorted: <strong>Critical First</strong></span>
+            <button class="clear-btn" onclick="clearHistory()">Clear History</button>
+        </div>
+
+        <div class="history-list" id="historyList"></div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', renderHistory);
+
+        function renderHistory() {
+            const listContainer = document.getElementById('historyList');
+            const history = JSON.parse(localStorage.getItem('atem_history')) || [];
+
+            if (history.length === 0) {
+                listContainer.innerHTML = `<div class="empty-state">No emergency incidents recorded yet.</div>`;
+                return;
+            }
+
+            // Sort history: Critical comes first
+            const sortedHistory = history.sort((a, b) => {
+                if (a.severity === 'critical' && b.severity !== 'critical') return -1;
+                if (a.severity !== 'critical' && b.severity === 'critical') return 1;
+                return 0;
+            });
+
+            listContainer.innerHTML = sortedHistory.map(item => `
+                <div class="incident-card ${item.severity}">
+                    <div class="card-top">
+                        <span class="card-id">${item.id || 'INCIDENT'}</span>
+                        <span class="severity-badge ${item.severity}">${item.severity}</span>
+                    </div>
+                    <div class="patient-details">👤 ${item.patientName}</div>
+                    <div class="location-details">📍 Hostel: ${item.hostel} | Room: ${item.room}</div>
+                    <div class="timestamp">🕒 ${item.date || ''} ${item.timestamp}</div>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all reported emergency history?')) {
+                localStorage.removeItem('atem_history');
+                renderHistory();
+            }
+        }
+    </script>
+</body>
+</html>

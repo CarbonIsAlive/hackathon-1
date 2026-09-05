@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATEM - Emergency Dispatch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background: radial-gradient(circle at center, #1b2e2b 0%, #0d1a18 100%);
+            color: #f1f5f9; min-height: 100vh; display: flex;
+            justify-content: center; align-items: center;
+            font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px;
+        }
+        .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; }
+        .intro-phase { text-align: center; margin-bottom: 1.5rem; }
+        .brand-name { font-family: 'Cinzel', serif; font-size: 2.5rem; font-weight: 600; letter-spacing: 0.5rem; color: #ffffff; text-shadow: 0 0 25px rgba(226, 232, 240, 0.2), 0 0 40px rgba(52, 211, 153, 0.15); }
+        .tagline { font-size: 0.7rem; font-weight: 300; text-transform: uppercase; letter-spacing: 0.3rem; color: #a7f3d0; margin-top: 0.2rem; }
+        
+        .card { width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(167, 243, 208, 0.2); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(12px); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35); display: flex; flex-direction: column; gap: 1.2rem; box-sizing: border-box; }
+        .hidden { display: none !important; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 0.4rem; width: 100%; }
+        .input-group label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1rem; text-transform: uppercase; color: #cbd5e1; }
+        .input-group input { width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(167, 243, 208, 0.2); border-radius: 10px; padding: 0.75rem 1rem; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.85rem; outline: none; box-sizing: border-box; }
+        .row-group { display: flex; gap: 0.8rem; width: 100%; }
+        .row-group .input-group { flex: 1 1 0; min-width: 0; }
+        
+        .target-options, .severity-options { display: flex; gap: 0.8rem; width: 100%; }
+        .option-btn { flex: 1 1 0; min-width: 0; padding: 1rem 0.5rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.03); color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1rem; text-transform: uppercase; cursor: pointer; text-align: center; transition: all 0.3s ease; }
+        .option-btn.active { border-color: #f43f5e; background: rgba(244, 63, 94, 0.15); color: #fecdd3; box-shadow: 0 0 20px rgba(244, 63, 94, 0.25); }
+        
+        .action-btn { width: 100%; background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); border: 1px solid rgba(251, 113, 133, 0.6); color: #ffffff; padding: 1rem; border-radius: 50px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.15rem; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 30px rgba(225, 29, 72, 0.4); }
+        .user-pill { background: rgba(167, 243, 208, 0.1); border: 1px solid rgba(167, 243, 208, 0.3); border-radius: 12px; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; }
+        .logout-link { color: #f43f5e; font-size: 0.7rem; cursor: pointer; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="intro-phase">
+            <h1 class="brand-name">ATEM</h1>
+            <p class="tagline">Emergency Care Service</p>
+        </div>
+
+        <div class="card" id="dispatchCard">
+            <div class="user-pill" id="userPill">
+                <span>Status: <strong id="userDisplayName">Guest Reporter</strong></span>
+                <span class="logout-link hidden" id="logoutBtn" onclick="logout()">Logout</span>
+            </div>
+
+            <div>
+                <p style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1rem; color: #cbd5e1; margin-bottom: 0.5rem;">Reporting For</p>
+                <div class="target-options">
+                    <button class="option-btn" id="btnSelf" onclick="selectTarget('self')">YOURSELF</button>
+                    <button class="option-btn" id="btnOther" onclick="selectTarget('other')">SOMEONE ELSE</button>
+                </div>
+            </div>
+
+            <div id="patientFields" class="hidden">
+                <div class="input-group">
+                    <label for="pName">Patient Name</label>
+                    <input type="text" id="pName">
+                </div>
+                <div class="row-group">
+                    <div class="input-group">
+                        <label for="pHostel">Hostel</label>
+                        <input type="text" id="pHostel">
+                    </div>
+                    <div class="input-group">
+                        <label for="pRoom">Room</label>
+                        <input type="text" id="pRoom">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <p style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1rem; color: #cbd5e1; margin-bottom: 0.5rem;">Emergency Level</p>
+                <div class="severity-options">
+                    <button class="option-btn" id="btnTypical" onclick="selectSeverity('typical')">TYPICAL</button>
+                    <button class="option-btn" id="btnCritical" onclick="selectSeverity('critical')">CRITICAL</button>
+                </div>
+            </div>
+
+            <button class="action-btn" onclick="dispatchEmergency()">DISPATCH NOW</button>
+        </div>
+    </div>
+
+    <script>
+        let targetType = null;
+        let severityLevel = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateUserPill();
+
+            // Auto-select "Yourself" if coming back from logg.html
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('autoSelf') === 'true') {
+                selectTarget('self');
+            }
+        });
+
+        function updateUserPill() {
+            const user = JSON.parse(localStorage.getItem('atem_user'));
+            const nameLabel = document.getElementById('userDisplayName');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            if (user) {
+                nameLabel.innerText = `Logged in as ${user.name}`;
+                logoutBtn.classList.remove('hidden');
+            } else {
+                nameLabel.innerText = "Guest Reporter";
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('atem_user');
+            updateUserPill();
+            selectTarget('other');
+        }
+
+        function selectTarget(type) {
+            const user = JSON.parse(localStorage.getItem('atem_user'));
+
+            // Redirect to login ONLY if selecting 'YOURSELF' without an account
+            if (type === 'self' && !user) {
+                window.location.href = 'logg.html?redirect=dispatchSelf';
+                return;
+            }
+
+            targetType = type;
+            document.getElementById('btnSelf').classList.remove('active');
+            document.getElementById('btnOther').classList.remove('active');
+
+            const fields = document.getElementById('patientFields');
+            fields.classList.remove('hidden');
+
+            if (type === 'self') {
+                document.getElementById('btnSelf').classList.add('active');
+                if (user) {
+                    document.getElementById('pName').value = user.name;
+                    document.getElementById('pHostel').value = user.hostel;
+                    document.getElementById('pRoom').value = user.room;
+                }
+            } else {
+                document.getElementById('btnOther').classList.add('active');
+                document.getElementById('pName').value = '';
+                document.getElementById('pHostel').value = '';
+                document.getElementById('pRoom').value = '';
+            }
+        }
+
+        function selectSeverity(level) {
+            severityLevel = level;
+            document.getElementById('btnTypical').classList.remove('active');
+            document.getElementById('btnCritical').classList.remove('active');
+
+            if (level === 'typical') {
+                document.getElementById('btnTypical').classList.add('active');
+            } else {
+                document.getElementById('btnCritical').classList.add('active');
+            }
+        }
+
+        function dispatchEmergency() {
+            if (!targetType || !severityLevel) {
+                alert('Please select both Target ("Yourself" / "Someone Else") and Emergency Level.');
+                return;
+            }
+
+            const pName = document.getElementById('pName').value.trim();
+            const pHostel = document.getElementById('pHostel').value.trim();
+            const pRoom = document.getElementById('pRoom').value.trim();
+
+            if (!pName || !pHostel || !pRoom) {
+                alert('Please ensure patient details are filled.');
+                return;
+            }
+
+            const dispatchData = {
+                id: 'INC-' + Date.now().toString().slice(-5),
+                patientName: pName,
+                hostel: pHostel,
+                room: pRoom,
+                severity: severityLevel,
+                date: new Date().toLocaleDateString(),
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            localStorage.setItem('atem_dispatch', JSON.stringify(dispatchData));
+
+            const history = JSON.parse(localStorage.getItem('atem_history')) || [];
+            history.push(dispatchData);
+            localStorage.setItem('atem_history', JSON.stringify(history));
+
+            window.location.href = '3upage.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATEM - Active Dispatch Status</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background: radial-gradient(circle at center, #1b2e2b 0%, #0d1a18 100%);
+            color: #f1f5f9; min-height: 100vh; display: flex;
+            justify-content: center; align-items: center;
+            font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px;
+        }
+        .container { width: 100%; max-width: 440px; display: flex; flex-direction: column; align-items: center; }
+        .card {
+            width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(167, 243, 208, 0.2);
+            border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(12px);
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+        .status-badge {
+            background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4);
+            color: #fecdd3; text-align: center; padding: 0.6rem; border-radius: 50px;
+            font-weight: 700; font-size: 0.8rem; letter-spacing: 0.1rem; text-transform: uppercase;
+        }
+        .info-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.85rem; }
+        .info-label { color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; }
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(167, 243, 208, 0.25);
+            color: #f8fafc; padding: 0.8rem; border-radius: 50px; text-align: center;
+            font-size: 0.8rem; cursor: pointer; text-decoration: none; margin-top: 0.5rem; width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <div class="status-badge">🚨 Live Dispatch En Route</div>
+
+            <p style="font-size: 0.7rem; color: #a7f3d0; text-transform: uppercase; letter-spacing: 0.1rem;">Logged Reporter Info</p>
+            <div class="info-row">
+                <span class="info-label">Reporter Name</span>
+                <strong id="repName">--</strong>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Base Location</span>
+                <strong id="repLoc">--</strong>
+            </div>
+
+            <p style="font-size: 0.7rem; color: #f43f5e; text-transform: uppercase; letter-spacing: 0.1rem; margin-top: 0.5rem;">Patient & Incident Details</p>
+            <div class="info-row">
+                <span class="info-label">Patient Name</span>
+                <strong id="patName">--</strong>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Target Location</span>
+                <strong id="patLoc">--</strong>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Severity Level</span>
+                <strong id="patSev" style="color: #f43f5e;">--</strong>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Dispatch Time</span>
+                <strong id="dispTime">--</strong>
+            </div>
+
+            <button class="nav-btn" onclick="window.location.href='1page.html'">Return to Main Home</button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('atem_user'));
+            const dispatch = JSON.parse(localStorage.getItem('atem_dispatch'));
+
+            if (user) {
+                document.getElementById('repName').innerText = user.name;
+                document.getElementById('repLoc').innerText = `${user.hostel}, Room ${user.room}`;
+            }
+
+            if (dispatch) {
+                document.getElementById('patName').innerText = dispatch.patientName;
+                document.getElementById('patLoc').innerText = `${dispatch.hostel}, Room ${dispatch.room}`;
+                document.getElementById('patSev').innerText = dispatch.severity.toUpperCase();
+                document.getElementById('dispTime').innerText = dispatch.timestamp;
+            }
+        });
+    </script>
+</body>
+</html>
